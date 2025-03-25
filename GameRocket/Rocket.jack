@@ -1,0 +1,67 @@
+class Rocket {
+    field int x, y;           // координаты ракеты
+    field int width, height;  // размеры ракеты
+    field int speed;         // скорость движения
+
+    // Конструктор
+    constructor Rocket new() {
+        let width = 32;
+        let height = 16;
+        let x = 256;
+        let y = 220;
+        let speed = 4;
+        return this;
+    }
+
+    method void moveLeft() {
+        if (x > 0) {
+            let x = x - speed;
+        }
+        return;
+    }
+
+    method void moveRight() {
+        if (x < (512 - width)) {
+            let x = x + speed;
+        }
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw() {
+        do Screen.setColor(true);
+        // Рисуем корпус ракеты
+        do Screen.drawRectangle(x, y, x + width, y + height);
+        // Рисуем нос ракеты (треугольник в виде прямоугольника сверху)
+        do Screen.drawRectangle(x + (width / 2) - 4, y - 8, x + (width / 2) + 4, y);
+        return;
+    }
+
+    method void erase() {
+        do Screen.setColor(false);
+        // Стираем всю ракету включая нос
+        do Screen.drawRectangle(x, y - 8, x + width, y + height);
+        return;
+    }
+
+    // Методы доступа к координатам и размерам
+    method int getX() {
+        return x;
+    }
+
+    method int getY() {
+        return y;
+    }
+
+    method int getWidth() {
+        return width;
+    }
+
+    method int getHeight() {
+        return height;
+    }
+}

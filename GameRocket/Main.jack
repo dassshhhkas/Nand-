@@ -1,0 +1,9 @@
+class Main {
+    function void main() {
+        var MainMenu menu;
+        let menu = MainMenu.new();
+        do menu.run();
+        do menu.dispose();
+        return;
+    }
+}

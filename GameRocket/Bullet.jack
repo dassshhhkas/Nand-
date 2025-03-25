@@ -1,0 +1,77 @@
+class Bullet {
+    field int x, y;           // координаты пули
+    field int radius;         // радиус пули
+    field int speed;          // скорость движения
+
+    // Конструктор
+    constructor Bullet new(int startX, int startY) {
+        let x = startX;
+        let y = startY;
+        let radius = 3;
+        let speed = 4;
+        return this;
+    }
+
+    // Метод для отрисовки пули
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    // Метод для очистки предыдущей позиции
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    // Метод для движения пули
+    method void move() {
+        do erase();  // стираем текущую позицию
+        let y = y - speed;  // двигаем вверх
+        if ((y - radius) < 0) {  // если пуля вышла за верхнюю границу
+            return;
+        }
+        do draw();  // рисуем в новой позиции
+        return;
+    }
+
+    // Проверка, находится ли пуля на экране
+    method boolean isOnScreen() {
+        return ((y - radius) > 0);
+    }
+
+    // Получение координат пули
+    method int getX() { return x; }
+    method int getY() { return y; }
+    method int getRadius() { return radius; }
+    method int getSpeed() { return speed; }
+
+    // Установка Y координаты
+    method void setY(int newY) {
+        let y = newY;
+        return;
+    }
+
+    // Метод для проверки столкновения с пришельцем
+    method boolean checkCollisionAlien(Alien alien) {
+        var int alienX, alienY;
+        var int alienRight, alienBottom;
+        
+        if (alien.isAlive()) {
+            let alienX = alien.getX();
+            let alienY = alien.getY();
+            let alienRight = alienX + 20;  // ширина пришельца
+            let alienBottom = alienY + 20;  // высота пришельца
+
+            // Проверяем, пересекается ли пуля с пришельцем
+            // Используем простую проверку прямоугольника вокруг пули
+            if ((x - radius < alienRight) & (x + radius > alienX) & 
+                (y - radius < alienBottom) & (y + radius > alienY)) {
+                return true;
+            }
+        }
+        return false;
+    }
+} 

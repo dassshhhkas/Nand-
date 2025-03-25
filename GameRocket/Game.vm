@@ -1,0 +1,3439 @@
+function Game.new 0
+push constant 14
+call Memory.alloc 1
+pop pointer 0
+push constant 0
+pop this 5
+push constant 1
+pop this 6
+push constant 0
+pop this 4
+push constant 0
+pop this 7
+push constant 0
+pop this 3
+push constant 0
+pop this 9
+push constant 0
+pop this 10
+push constant 10
+pop this 11
+push constant 0
+pop this 12
+push constant 0
+pop this 13
+push constant 6
+call Array.new 1
+pop this 1
+push this 11
+call Array.new 1
+pop this 2
+call Rocket.new 0
+pop this 0
+push constant 12345
+call Random.new 1
+pop this 8
+push pointer 0
+call Game.initializeAliens 1
+pop temp 0
+push constant 6
+pop this 3
+push pointer 0
+return
+function Game.run 2
+push argument 0
+pop pointer 0
+label WHILE_EXP0
+push this 7
+not
+not
+if-goto WHILE_END0
+push constant 0
+pop local 1
+call Keyboard.keyPressed 0
+pop local 0
+push local 0
+push constant 81
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+call Screen.clearScreen 0
+pop temp 0
+push constant 0
+not
+pop this 7
+label IF_FALSE0
+push this 4
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
+push constant 130
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 0
+call Rocket.moveLeft 1
+pop temp 0
+push constant 0
+not
+pop local 1
+label IF_FALSE2
+push local 0
+push constant 132
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 0
+call Rocket.moveRight 1
+pop temp 0
+push constant 0
+not
+pop local 1
+label IF_FALSE3
+push local 0
+push constant 32
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push constant 0
+not
+pop this 13
+goto IF_END4
+label IF_FALSE4
+push this 13
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push pointer 0
+call Game.createBullet 1
+pop temp 0
+label IF_FALSE5
+push constant 0
+pop this 13
+label IF_END4
+push pointer 0
+call Game.updateGame 1
+pop temp 0
+push this 3
+push constant 0
+eq
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push pointer 0
+call Game.levelUp 1
+pop temp 0
+label IF_FALSE6
+goto IF_END1
+label IF_FALSE1
+label WHILE_EXP1
+push local 0
+push constant 0
+eq
+not
+if-goto WHILE_END1
+call Keyboard.keyPressed 0
+pop local 0
+push constant 50
+call Sys.wait 1
+pop temp 0
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+push constant 82
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push pointer 0
+call Game.restart 1
+pop temp 0
+label IF_FALSE7
+push local 0
+push constant 81
+eq
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+call Screen.clearScreen 0
+pop temp 0
+push constant 0
+not
+pop this 7
+label IF_FALSE8
+label IF_END1
+push pointer 0
+call Game.draw 1
+pop temp 0
+push constant 50
+call Sys.wait 1
+pop temp 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Game.createBullet 4
+push argument 0
+pop pointer 0
+push this 12
+push this 11
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 11
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 0
+call Rocket.getX 1
+push this 0
+call Rocket.getWidth 1
+push constant 2
+call Math.divide 2
+add
+pop local 2
+push this 0
+call Rocket.getY 1
+push constant 8
+sub
+pop local 3
+push local 2
+push local 3
+call Bullet.new 2
+pop local 1
+push local 0
+push this 2
+add
+push local 1
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 12
+push constant 1
+add
+pop this 12
+push constant 0
+return
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+label IF_FALSE0
+push constant 0
+return
+function Game.updateGame 13
+push argument 0
+pop pointer 0
+push constant 2
+pop local 4
+push constant 20
+pop local 8
+push constant 20
+pop local 9
+push constant 512
+pop local 10
+push constant 256
+pop local 11
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 12
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 3
+push local 3
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 3
+call Bullet.getY 1
+pop local 7
+push local 7
+push local 3
+call Bullet.getSpeed 1
+sub
+pop local 7
+push constant 0
+pop local 1
+push constant 0
+pop local 12
+label WHILE_EXP1
+push local 1
+push constant 6
+lt
+push local 12
+not
+and
+not
+if-goto WHILE_END1
+push local 1
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 2
+push local 2
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 3
+push local 2
+call Bullet.checkCollisionAlien 2
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+not
+pop local 12
+push local 0
+push this 2
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 12
+push constant 1
+sub
+pop this 12
+push local 1
+push this 1
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 2
+call Alien.dispose 1
+pop temp 0
+push this 3
+push constant 1
+sub
+pop this 3
+push this 5
+push constant 1
+add
+pop this 5
+label IF_FALSE2
+label IF_FALSE1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP1
+label WHILE_END1
+push local 12
+not
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 3
+call Bullet.isOnScreen 1
+not
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 0
+push this 2
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 12
+push constant 1
+sub
+pop this 12
+goto IF_END4
+label IF_FALSE4
+push local 3
+push local 7
+call Bullet.setY 2
+pop temp 0
+label IF_END4
+label IF_FALSE3
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 0
+label WHILE_EXP2
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END2
+push local 0
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 2
+push local 2
+push constant 0
+eq
+not
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 2
+call Alien.isAlive 1
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push local 2
+push this 0
+call Alien.checkCollisionShip 2
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push this 4
+not
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push constant 0
+not
+pop this 4
+label IF_FALSE8
+label IF_FALSE7
+push local 2
+call Alien.getY 1
+push local 4
+add
+pop local 5
+push local 2
+push local 5
+call Alien.setY 2
+pop temp 0
+push local 5
+push local 9
+add
+push constant 236
+gt
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push local 0
+push this 1
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 3
+push constant 1
+sub
+pop this 3
+push local 2
+call Alien.dispose 1
+pop temp 0
+label IF_FALSE9
+label IF_FALSE6
+goto IF_END5
+label IF_FALSE5
+push this 8
+push local 10
+push local 8
+sub
+call Random.randRange 2
+pop local 6
+push this 8
+push constant 108
+call Random.randRange 2
+push constant 20
+add
+pop local 7
+push local 6
+push local 7
+call Alien.new 2
+pop local 2
+push local 2
+push constant 0
+eq
+not
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push local 0
+push this 1
+add
+push local 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push this 3
+push constant 1
+add
+pop this 3
+label IF_FALSE10
+label IF_END5
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP2
+label WHILE_END2
+push constant 0
+return
+function Game.draw 3
+push argument 0
+pop pointer 0
+call Screen.clearScreen 0
+pop temp 0
+push this 4
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+call Game.drawGameOver 1
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push this 0
+call Rocket.draw 1
+pop temp 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 1
+call Alien.isAlive 1
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 1
+call Alien.draw 1
+pop temp 0
+label IF_FALSE2
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push this 12
+lt
+not
+if-goto WHILE_END1
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+pop local 2
+push local 2
+push constant 0
+eq
+not
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 2
+call Bullet.isOnScreen 1
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 2
+call Bullet.draw 1
+pop temp 0
+label IF_FALSE4
+label IF_FALSE3
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push pointer 0
+call Game.drawScore 1
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Game.drawGameOver 6
+push argument 0
+pop pointer 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push constant 0
+push constant 0
+push constant 511
+push constant 255
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push constant 120
+pop local 0
+push constant 70
+pop local 1
+push constant 55
+pop local 2
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 40
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 20
+add
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 40
+add
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push constant 20
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 20
+add
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 40
+add
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 40
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push constant 120
+pop local 0
+push local 1
+push constant 60
+add
+pop local 1
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 40
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 40
+add
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push constant 20
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 20
+add
+push local 1
+push constant 40
+add
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 40
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 2
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 40
+add
+push local 1
+push local 0
+push constant 40
+add
+push local 1
+push constant 20
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push constant 20
+add
+push local 1
+push constant 20
+add
+push local 0
+push constant 40
+add
+push local 1
+push constant 40
+add
+call Screen.drawLine 4
+pop temp 0
+push constant 80
+pop local 0
+push local 1
+push constant 100
+add
+pop local 1
+push constant 10
+pop local 3
+push constant 20
+pop local 5
+push constant 8
+pop local 4
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 5
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 5
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+push constant 2
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+push constant 2
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 5
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 5
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 4
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push local 4
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 3
+add
+pop local 0
+push local 0
+push local 1
+push local 4
+add
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 1
+push local 0
+push local 4
+add
+push local 1
+push local 4
+add
+call Screen.drawLine 4
+pop temp 0
+push local 0
+push local 4
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+push local 0
+push constant 2
+push local 4
+call Math.multiply 2
+push constant 3
+call Math.divide 2
+add
+push local 1
+push local 4
+push constant 2
+call Math.divide 2
+add
+call Screen.drawLine 4
+pop temp 0
+push constant 0
+return
+function Game.levelUp 2
+push argument 0
+pop pointer 0
+push this 6
+push constant 1
+add
+pop this 6
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 1
+call Alien.dispose 1
+pop temp 0
+push local 0
+push this 1
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+call Game.initializeAliens 1
+pop temp 0
+push constant 0
+return
+function Game.restart 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 1
+call Alien.dispose 1
+pop temp 0
+push local 0
+push this 1
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 0
+call Rocket.dispose 1
+pop temp 0
+push constant 0
+pop this 0
+label IF_FALSE1
+push constant 0
+pop this 5
+push constant 1
+pop this 6
+push constant 0
+pop this 4
+push constant 0
+pop this 3
+call Rocket.new 0
+pop this 0
+push pointer 0
+call Game.initializeAliens 1
+pop temp 0
+push constant 0
+return
+function Game.dispose 3
+push argument 0
+pop pointer 0
+push this 0
+push constant 0
+eq
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 0
+call Rocket.dispose 1
+pop temp 0
+push constant 0
+pop this 0
+label IF_FALSE0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END0
+push local 0
+push this 1
+add
+pop pointer 1
+push that 0
+pop local 1
+push local 1
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 1
+call Alien.dispose 1
+pop temp 0
+push local 0
+push this 1
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+pop local 0
+label WHILE_EXP1
+push local 0
+push this 11
+lt
+not
+if-goto WHILE_END1
+push local 0
+push this 2
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push this 1
+push constant 0
+eq
+not
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 1
+call Array.dispose 1
+pop temp 0
+push constant 0
+pop this 1
+label IF_FALSE2
+push this 2
+push constant 0
+eq
+not
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push this 2
+call Array.dispose 1
+pop temp 0
+push constant 0
+pop this 2
+label IF_FALSE3
+push this 8
+push constant 0
+eq
+not
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push this 8
+call Random.dispose 1
+pop temp 0
+push constant 0
+pop this 8
+label IF_FALSE4
+push constant 0
+return
+function Game.drawScore 7
+push argument 0
+pop pointer 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push constant 10
+pop local 4
+push constant 0
+pop local 3
+push this 5
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 0
+gt
+not
+if-goto WHILE_END0
+push local 3
+push constant 1
+add
+pop local 3
+push local 0
+push constant 10
+call Math.divide 2
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push local 3
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+pop local 3
+label IF_FALSE0
+push constant 85
+push local 3
+push constant 12
+call Math.multiply 2
+add
+pop local 6
+push constant 512
+push local 6
+sub
+push constant 10
+sub
+pop local 5
+push local 5
+push local 4
+push local 5
+push constant 10
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push local 4
+push local 5
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push local 4
+push constant 5
+add
+push local 5
+push constant 10
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 10
+add
+push local 4
+push constant 5
+add
+push local 5
+push constant 10
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push local 4
+push constant 10
+add
+push local 5
+push constant 10
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 15
+add
+push local 4
+push local 5
+push constant 25
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 15
+add
+push local 4
+push local 5
+push constant 15
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 15
+add
+push local 4
+push constant 10
+add
+push local 5
+push constant 25
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 30
+add
+push local 4
+push local 5
+push constant 40
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 30
+add
+push local 4
+push local 5
+push constant 30
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 30
+add
+push local 4
+push constant 10
+add
+push local 5
+push constant 40
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 40
+add
+push local 4
+push local 5
+push constant 40
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 45
+add
+push local 4
+push local 5
+push constant 55
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 45
+add
+push local 4
+push local 5
+push constant 45
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 45
+add
+push local 4
+push constant 5
+add
+push local 5
+push constant 55
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 55
+add
+push local 4
+push local 5
+push constant 55
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 50
+add
+push local 4
+push constant 5
+add
+push local 5
+push constant 55
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 60
+add
+push local 4
+push local 5
+push constant 70
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 60
+add
+push local 4
+push local 5
+push constant 60
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 60
+add
+push local 4
+push constant 5
+add
+push local 5
+push constant 70
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 60
+add
+push local 4
+push constant 10
+add
+push local 5
+push constant 70
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 5
+push constant 75
+add
+push local 4
+push constant 2
+add
+push local 5
+push constant 77
+add
+push local 4
+push constant 4
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 5
+push constant 75
+add
+push local 4
+push constant 7
+add
+push local 5
+push constant 77
+add
+push local 4
+push constant 9
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 5
+push constant 85
+add
+pop local 2
+push this 5
+pop local 0
+push this 5
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push constant 0
+return
+label IF_FALSE1
+label WHILE_EXP1
+push local 0
+push constant 0
+gt
+not
+if-goto WHILE_END1
+push local 0
+push local 0
+push constant 10
+call Math.divide 2
+push constant 10
+call Math.multiply 2
+sub
+pop local 1
+push local 1
+push constant 0
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE2
+push local 1
+push constant 1
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 2
+push constant 4
+add
+push local 4
+push local 2
+push constant 4
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE3
+push local 1
+push constant 2
+eq
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE4
+push local 1
+push constant 3
+eq
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE5
+push local 1
+push constant 4
+eq
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE6
+push local 1
+push constant 5
+eq
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE7
+push local 1
+push constant 6
+eq
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE8
+push local 1
+push constant 7
+eq
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE9
+push local 1
+push constant 8
+eq
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE10
+push local 1
+push constant 9
+eq
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
+push local 2
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push local 2
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 5
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 5
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push constant 8
+add
+push local 4
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+push local 2
+push local 4
+push constant 10
+add
+push local 2
+push constant 8
+add
+push local 4
+push constant 10
+add
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE11
+push local 2
+push constant 12
+add
+pop local 2
+push local 0
+push constant 10
+call Math.divide 2
+pop local 0
+goto WHILE_EXP1
+label WHILE_END1
+push constant 0
+return
+function Game.initializeAliens 9
+push argument 0
+pop pointer 0
+push this 1
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 6
+call Array.new 1
+pop this 1
+label IF_FALSE0
+push constant 512
+pop local 3
+push constant 256
+pop local 4
+push constant 16
+pop local 5
+push constant 16
+pop local 6
+push local 3
+push constant 6
+call Math.divide 2
+pop local 7
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 6
+lt
+not
+if-goto WHILE_END0
+push local 0
+push local 7
+call Math.multiply 2
+push this 8
+push local 7
+push local 5
+sub
+call Random.randRange 2
+add
+pop local 1
+push this 8
+push constant 80
+call Random.randRange 2
+push constant 20
+add
+pop local 2
+push local 1
+push local 2
+call Alien.new 2
+pop local 8
+push local 8
+push constant 0
+eq
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
+push this 1
+add
+push local 8
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 6
+pop this 3
+push constant 0
+return

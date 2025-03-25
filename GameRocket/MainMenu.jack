@@ -1,0 +1,845 @@
+class Game {
+
+    field Rocket rocket;        // ракета игрока
+    field Array aliens;         // массив пришельцев
+    field Array bullets;        // массив пуль
+    field int aliensCount;      // количество оставшихся пришельцев
+    field boolean gameOver;     // флаг окончания игры
+    field int score;           // счет игрока
+    field int level;           // текущий уровень
+    field boolean exit;        // флаг выхода из игры
+    field Random random;       // генератор случайных чисел
+    field int spawnTimer;      // таймер для спавна пришельцев
+    field int moveTimer;       // таймер для движения пришельцев
+    field int maxBullets;      // максимальное количество пуль
+    field int activeBullets;   // текущее количество активных пуль
+    field boolean spacePressed; // флаг нажатия пробела
+
+    // Конструктор
+    constructor Game new() {
+        // Инициализация игровых переменных
+        let score = 0;
+        let level = 1;
+        let gameOver = false;
+        let exit = false;
+        let aliensCount = 0;
+        let spawnTimer = 0;
+        let moveTimer = 0;
+        let maxBullets = 10;    // максимум 10 пуль одновременно
+        let activeBullets = 0;
+        let spacePressed = false;
+
+        // Создаем массив пришельцев
+        let aliens = Array.new(6);
+        let bullets = Array.new(maxBullets);
+
+        // Создаем ракету
+        let rocket = Rocket.new();
+
+        // Создаем генератор случайных чисел
+        let random = Random.new(12345);  // передаем начальное значение seed
+
+        // Инициализируем пришельцев
+        do initializeAliens();
+        
+        // Устанавливаем начальное количество пришельцев
+        let aliensCount = 6;
+
+        return this;
+    }
+
+    // Основной игровой цикл
+    method void run() {
+        var char key;
+        var boolean keyPressed;
+
+        while (~exit) {
+            // Обработка ввода
+            let keyPressed = false;
+            let key = Keyboard.keyPressed();
+
+            // 'q' для возврата в главное меню
+            if (key = 81) {  
+                // Очищаем экран перед выходом в меню
+                do Screen.clearScreen();
+                // Просто выходим из цикла, не завершая программу
+                let exit = true;
+            }
+
+            //Если игра не закончена, то  
+            if (~gameOver) {
+                // Управление ракетой
+                if (key = 130) {  // стрелка влево
+                    do rocket.moveLeft();
+                    let keyPressed = true;
+                }
+                if (key = 132) {  // стрелка вправо
+                    do rocket.moveRight();
+                    let keyPressed = true;
+                }
+                if (key = 32) {  // пробел нажат
+                    let spacePressed = true;
+                } else {  // пробел отпущен
+                    if (spacePressed) {  // если пробел был нажат до этого
+                        do createBullet();  // создаем пулю при отпускании
+                    }
+                    let spacePressed = false;  // сбрасываем флаг
+                }
+
+                // Обновление состояния игры
+                do updateGame();
+                
+                // Проверка условий окончания игры
+                if (aliensCount = 0) {
+                    do levelUp();
+                }
+            } else {
+                // Ждем нажатия клавиши R для рестарта или Q для возврата в меню
+                while (key = 0) {
+                    let key = Keyboard.keyPressed();
+                    do Sys.wait(50);
+                }
+                if (key = 82) {  // 'r' для рестарта
+                    do restart();
+                }
+                if (key = 81) {  // 'q' для возврата в меню
+                    // Очищаем экран перед выходом в меню
+                    do Screen.clearScreen();
+                    // Просто выходим из цикла, не завершая программу
+                    let exit = true;
+                }
+            }
+
+            // Отрисовка
+            do draw();
+
+            // Задержка
+            do Sys.wait(50);
+        }
+        return;
+    }
+
+    // Создание новой пули
+    method void createBullet() {
+        var int i;
+        var Bullet bullet;
+        var int bulletX, bulletY;
+
+        if (activeBullets < maxBullets) {
+            let i = 0;
+            while (i < maxBullets) {
+                let bullet = bullets[i];
+                // Проверяем только пустые слоты
+                if (bullet = null) {
+                    // Вычисляем начальные координаты пули (из носа ракеты)
+                    let bulletX = rocket.getX() + (rocket.getWidth() / 2);
+                    let bulletY = rocket.getY() - 8;  // верхняя точка носа ракеты
+                    
+                    // Создаем новую пулю
+                    let bullet = Bullet.new(bulletX, bulletY);
+                    let bullets[i] = bullet;
+                    let activeBullets = activeBullets + 1;
+                    return;
+                }
+                let i = i + 1;
+            }
+        }
+        return;
+    }
+
+    // Обновление состояния игры
+    method void updateGame() {
+        var int i, j;
+        var Alien alien;
+        var Bullet bullet;
+        var int speed;
+        var int newY;
+        var int x, y;
+        var int alienWidth, alienHeight;
+        var int screenWidth, screenHeight;
+        var boolean collision;
+
+        let speed = 2;
+        let alienWidth = 20;
+        let alienHeight = 20;
+        let screenWidth = 512;
+        let screenHeight = 256;
+
+        // Обновляем пули и проверяем столкновения
+        let i = 0;
+        while (i < activeBullets) {
+            let bullet = bullets[i];
+            if (~(bullet = null)) {
+                let y = bullet.getY();
+                let y = y - bullet.getSpeed();
+
+                // Проверяем столкновения с пришельцами
+                let j = 0;
+                let collision = false;
+                while ((j < 6) & (~collision)) {
+                    let alien = aliens[j];
+                    if (~(alien = null)) {
+                        if (bullet.checkCollisionAlien(alien)) {
+                            // Столкновение произошло
+                            let collision = true;
+                            // Удаляем пулю
+                            let bullets[i] = null;
+                            let activeBullets = activeBullets - 1;
+                            // Удаляем пришельца
+                            let aliens[j] = null;
+                            do alien.dispose();
+                            let aliensCount = aliensCount - 1;
+                            // Увеличиваем счет на 1
+                            let score = score + 1;
+                        }
+                    }
+                    let j = j + 1;
+                }
+
+                if (~collision) {
+                    if (~(bullet.isOnScreen())) {
+                        let bullets[i] = null;
+                        let activeBullets = activeBullets - 1;
+                    } else {
+                        do bullet.setY(y);
+                    }
+                }
+            }
+            let i = i + 1;
+        }
+
+        // Обновляем пришельцев и спавним новых
+        let i = 0;
+        while (i < 6) {
+            let alien = aliens[i];
+            if (~(alien = null)) {
+                // Обновляем существующего пришельца
+                if (alien.isAlive()) {
+                    if (alien.checkCollisionShip(rocket)) {
+                        if (~gameOver) {
+                            let gameOver = true;
+                        }
+                    }
+
+                    let newY = alien.getY() + speed;
+                    do alien.setY(newY);
+                    
+                    // Если пришелец достиг нижней границы
+                    if ((newY + alienHeight) > 236) {
+                        let aliens[i] = null;
+                        let aliensCount = aliensCount - 1;
+                        do alien.dispose();
+                    }
+                }
+            } else {
+                // Если в текущей позиции нет пришельца (null), сразу создаем нового
+                let x = random.randRange(screenWidth - alienWidth);  // Используем randRange с маленькой буквы
+                let y = random.randRange(108) + 20;  // Используем randRange с маленькой буквы
+                let alien = Alien.new(x, y);
+                if (~(alien = null)) {
+                    let aliens[i] = alien;
+                    let aliensCount = aliensCount + 1;
+                }
+            }
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    // Отрисовка игры
+    method void draw() {
+        var int i;
+        var Alien alien;
+        var Bullet bullet;
+
+        // Очищаем экран
+        do Screen.clearScreen();
+
+        if (gameOver) {
+            do drawGameOver();
+        } else {
+            // Рисуем ракету
+            do rocket.draw();
+
+            // Рисуем пришельцев
+            let i = 0;
+            while (i < 6) {
+                let alien = aliens[i];
+                if (~(alien = null)) {  // проверяем только на null
+                    if (alien.isAlive()) {  // проверяем, жив ли пришелец
+                        do alien.draw();
+                    }
+                }
+                let i = i + 1;
+            }
+
+            // Рисуем пули
+            let i = 0;
+            while (i < activeBullets) {
+                let bullet = bullets[i];
+                if (~(bullet = null)) {
+                    if (bullet.isOnScreen()) {  // если пуля на экране
+                        do bullet.draw();
+                    }
+                }
+                let i = i + 1;
+            }
+
+            // Отображаем счет
+            do drawScore();
+        }
+
+        return;
+    }
+
+    method void drawGameOver() {
+        var int startX;
+        var int y;
+        var int spacing;  // расстояние между буквами
+        var int smallSpacing;  // расстояние между маленькими буквами
+
+        // Делаем экран белым
+        do Screen.setColor(true);
+        do Screen.drawRectangle(0, 0, 511, 255);
+        
+        // Переключаемся на черный цвет для текста
+        do Screen.setColor(false);
+        
+        let startX = 120;  // начинаем левее для центрирования
+        let y = 70;  // поднимаем текст выше для большего размера
+        let spacing = 55;  // увеличиваем расстояние между буквами
+        
+        // GAME
+        // G
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 40, startX + 40, y + 40);  // нижняя линия
+        do Screen.drawLine(startX + 40, y + 20, startX + 40, y + 40);  // правая нижняя линия
+        do Screen.drawLine(startX + 20, y + 20, startX + 40, y + 20);  // средняя линия
+
+        // A
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 20, startX + 40, y + 20);  // средняя линия
+        do Screen.drawLine(startX + 40, y, startX + 40, y + 40);  // правая линия
+
+        // M
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y, startX + 20, y + 20);  // левая диагональ
+        do Screen.drawLine(startX + 20, y + 20, startX + 40, y);  // правая диагональ
+        do Screen.drawLine(startX + 40, y, startX + 40, y + 40);  // правая линия
+
+        // E
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 20, startX + 40, y + 20);  // средняя линия
+        do Screen.drawLine(startX, y + 40, startX + 40, y + 40);  // нижняя линия
+
+        let startX = 120;  // возвращаемся к начальной позиции для второй строки
+        let y = y + 60;  // увеличенный отступ для второй строки
+
+        // OVER
+        // O
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 40, startX + 40, y + 40);  // нижняя линия
+        do Screen.drawLine(startX + 40, y, startX + 40, y + 40);  // правая линия
+
+        // V
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX + 20, y + 40);  // левая диагональ
+        do Screen.drawLine(startX + 20, y + 40, startX + 40, y);  // правая диагональ
+
+        // E
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 20, startX + 40, y + 20);  // средняя линия
+        do Screen.drawLine(startX, y + 40, startX + 40, y + 40);  // нижняя линия
+
+        // R
+        let startX = startX + spacing;
+        do Screen.drawLine(startX, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 40);  // левая линия
+        do Screen.drawLine(startX, y + 20, startX + 40, y + 20);  // средняя линия
+        do Screen.drawLine(startX + 40, y, startX + 40, y + 20);  // правая верхняя линия
+        do Screen.drawLine(startX + 20, y + 20, startX + 40, y + 40);  // диагональная линия
+        
+        // Добавляем маленькую надпись "НАЖМИТЕ R ЧТОБЫ НАЧАТЬ СНАЧАЛА"
+        let startX = 180;  // начальная позиция для инструкции
+        let y = y + 50;  // отступ от "GAME OVER"
+        let smallSpacing = 10;  // маленькое расстояние между буквами
+
+        // "НАЖМИТЕ"
+        // Н
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+
+        // Ж
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y + 6);  // диагональ вниз
+        do Screen.drawLine(startX, y + 6, startX + 6, y);  // диагональ вверх
+        do Screen.drawLine(startX + 3, y, startX + 3, y + 6);  // вертикальная линия
+
+        // М
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX, y);  // левая линия
+        do Screen.drawLine(startX, y, startX + 3, y + 3);  // левая диагональ
+        do Screen.drawLine(startX + 3, y + 3, startX + 6, y);  // правая диагональ
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // И
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX, y);  // левая линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y);  // диагональ
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // Т
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX + 3, y, startX + 3, y + 6);  // вертикальная линия
+
+        // Е
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+
+        // Пробел и R
+        let startX = startX + smallSpacing + 4;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 3);  // правая верхняя линия
+        do Screen.drawLine(startX + 3, y + 3, startX + 6, y + 6);  // диагональная линия
+
+        // Пробел и "ЧТОБЫ"
+        let startX = startX + smallSpacing + 4;
+
+        // Ч
+        do Screen.drawLine(startX, y, startX, y + 4);  // левая линия
+        do Screen.drawLine(startX, y + 4, startX + 6, y + 4);  // нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // Т
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX + 3, y, startX + 3, y + 6);  // вертикальная линия
+
+        // О
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // Б
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // Ы
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 4, y + 3);  // средняя линия
+        do Screen.drawLine(startX, y + 6, startX + 4, y + 6);  // нижняя линия
+        do Screen.drawLine(startX + 4, y + 3, startX + 4, y + 6);  // правая нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // вертикальная линия справа
+
+        // Пробел и "НАЧАТЬ"
+        let startX = startX + smallSpacing + 4;
+
+        // Н
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+
+        // Ч
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX, y + 4);  // левая линия
+        do Screen.drawLine(startX, y + 4, startX + 6, y + 4);  // нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+
+        // Т
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX + 3, y, startX + 3, y + 6);  // вертикальная линия
+
+        // Ь
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+        do Screen.drawLine(startX + 6, y + 3, startX + 6, y + 6);  // правая нижняя линия
+
+        // Пробел и "СНАЧАЛА"
+        let startX = startX + smallSpacing + 4;
+
+        // С
+        do Screen.drawLine(startX, y, startX + 6, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+
+        // Н
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX, y + 6);  // левая линия
+        do Screen.drawLine(startX, y + 3, startX + 6, y + 3);  // средняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+
+        // Ч
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y, startX, y + 4);  // левая линия
+        do Screen.drawLine(startX, y + 4, startX + 6, y + 4);  // нижняя линия
+        do Screen.drawLine(startX + 6, y, startX + 6, y + 6);  // правая линия
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+
+        // Л
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX + 3, y, startX, y + 6);  // левая диагональ
+        do Screen.drawLine(startX, y + 6, startX + 6, y + 6);  // нижняя линия
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+
+        // А
+        let startX = startX + smallSpacing;
+        do Screen.drawLine(startX, y + 6, startX + 3, y);  // левая диагональ
+        do Screen.drawLine(startX + 3, y, startX + 6, y + 6);  // правая диагональ
+        do Screen.drawLine(startX + 2, y + 3, startX + 4, y + 3);  // средняя линия
+        
+        return;
+    }
+
+    method void levelUp() {
+        var int i;
+        var Alien alien;
+        
+        // Логика повышения уровня
+        let level = level + 1;
+        
+        // Очищаем память старых пришельцев
+        let i = 0;
+        while (i < 6) {
+            let alien = aliens[i];
+            if (~(alien = null)) {
+                do alien.dispose();
+                let aliens[i] = null;
+            }
+            let i = i + 1;
+        }
+        
+        // Создаем новых пришельцев
+        do initializeAliens();
+        return;
+    }
+
+    method void restart() {
+        var int i;
+        var Alien alien;
+
+        // Очищаем память пришельцев
+        let i = 0;
+        while (i < 6) {
+            let alien = aliens[i];
+            if (~(alien = null)) {
+                do alien.dispose();
+                let aliens[i] = null;
+            }
+            let i = i + 1;
+        }
+
+        // Очищаем память ракеты
+        if (~(rocket = null)) {
+            do rocket.dispose();
+            let rocket = null;
+        }
+        
+        // Сбрасываем игровые переменные
+        let score = 0;
+        let level = 1;
+        let gameOver = false;
+        let aliensCount = 0;
+
+        // Создаем новые объекты
+        let rocket = Rocket.new();
+        do initializeAliens();
+
+        return;
+    }
+
+    method void dispose() {
+        var int i;
+        var Alien alien;
+        var Bullet bullet;
+
+        // Освобождаем память ракеты
+        if (~(rocket = null)) {
+            do rocket.dispose();
+            let rocket = null;
+        }
+
+        // Освобождаем память пришельцев
+        let i = 0;
+        while (i < 6) {
+            let alien = aliens[i];
+            if (~(alien = null)) {
+                do alien.dispose();
+                let aliens[i] = null;
+            }
+            let i = i + 1;
+        }
+
+        // Очищаем массив пуль
+        let i = 0;
+        while (i < maxBullets) {
+            let bullets[i] = null;
+            let i = i + 1;
+        }
+
+        // Освобождаем массивы
+        if (~(aliens = null)) {
+            do aliens.dispose();
+            let aliens = null;
+        }
+        if (~(bullets = null)) {
+            do bullets.dispose();
+            let bullets = null;
+        }
+
+        // Освобождаем генератор случайных чисел
+        if (~(random = null)) {
+            do random.dispose();
+            let random = null;
+        }
+
+        return;
+    }
+
+    method void drawScore() {
+        var int scoreCopy;
+        var int digit;
+        var int x;
+        var int digits;  // количество цифр в счете
+        var int y;         // базовая Y-координата для всех букв
+        var int startX;    // начальная позиция X 
+        var int scoreWidth; // общая ширина надписи
+
+        do Screen.setColor(true);
+        
+        let y = 10;  // Y-координата для верхнего края
+        
+        // Считаем количество цифр
+        let digits = 0;
+        let scoreCopy = score;
+        while (scoreCopy > 0) {
+            let digits = digits + 1;
+            let scoreCopy = scoreCopy / 10;
+        }
+        if (digits = 0) {
+            let digits = 1;  // для нуля
+        }
+        
+        // Вычисляем общую ширину надписи
+        let scoreWidth = 85 + (digits * 12);  // 85 пикселей для "Score:" и отступа, 12 пикселей на каждую цифру
+        let startX = 512 - scoreWidth - 10;  // отступ от правого края
+        
+        // Рисуем текст "Score:" меньшего размера
+        // S
+        do Screen.drawLine(startX, y, startX + 10, y);  // верхняя линия
+        do Screen.drawLine(startX, y, startX, y + 5);  // левая верхняя линия
+        do Screen.drawLine(startX, y + 5, startX + 10, y + 5);  // средняя линия
+        do Screen.drawLine(startX + 10, y + 5, startX + 10, y + 10);  // правая нижняя линия
+        do Screen.drawLine(startX, y + 10, startX + 10, y + 10);  // нижняя линия
+
+        // c
+        do Screen.drawLine(startX + 15, y, startX + 25, y);  // верхняя линия
+        do Screen.drawLine(startX + 15, y, startX + 15, y + 10);  // левая линия
+        do Screen.drawLine(startX + 15, y + 10, startX + 25, y + 10);  // нижняя линия
+
+        // o
+        do Screen.drawLine(startX + 30, y, startX + 40, y);  // верхняя линия
+        do Screen.drawLine(startX + 30, y, startX + 30, y + 10);  // левая линия
+        do Screen.drawLine(startX + 30, y + 10, startX + 40, y + 10);  // нижняя линия
+        do Screen.drawLine(startX + 40, y, startX + 40, y + 10);  // правая линия
+
+        // r
+        do Screen.drawLine(startX + 45, y, startX + 55, y);  // верхняя линия
+        do Screen.drawLine(startX + 45, y, startX + 45, y + 10);  // левая линия
+        do Screen.drawLine(startX + 45, y + 5, startX + 55, y + 5);  // средняя линия
+        do Screen.drawLine(startX + 55, y, startX + 55, y + 5);  // правая верхняя линия
+        do Screen.drawLine(startX + 50, y + 5, startX + 55, y + 10);  // диагональная линия
+
+        // e
+        do Screen.drawLine(startX + 60, y, startX + 70, y);  // верхняя линия
+        do Screen.drawLine(startX + 60, y, startX + 60, y + 10);  // левая линия
+        do Screen.drawLine(startX + 60, y + 5, startX + 70, y + 5);  // средняя линия
+        do Screen.drawLine(startX + 60, y + 10, startX + 70, y + 10);  // нижняя линия
+
+        // :
+        do Screen.drawRectangle(startX + 75, y + 2, startX + 77, y + 4);  // верхняя точка
+        do Screen.drawRectangle(startX + 75, y + 7, startX + 77, y + 9);  // нижняя точка
+        
+        // Начинаем рисовать цифры с позиции после двоеточия
+        let x = startX + 85;
+        let scoreCopy = score;
+        
+        // Если счет 0, рисуем один ноль
+        if (score = 0) {
+            // Рисуем 0
+            do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+            do Screen.drawLine(x, y, x, y + 10);  // левая линия
+            do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+            return;
+        }
+
+        // Отрисовываем каждую цифру счета слева направо
+        while (scoreCopy > 0) {
+            let digit = scoreCopy - ((scoreCopy / 10) * 10);
+            
+            // Рисуем цифру в зависимости от значения
+            if (digit = 0) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x, y, x, y + 10);  // левая линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+            }
+            if (digit = 1) {
+                do Screen.drawLine(x + 4, y, x + 4, y + 10);  // вертикальная линия
+            }
+            if (digit = 2) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 5);  // правая верхняя линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x, y + 5, x, y + 10);  // левая нижняя линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            if (digit = 3) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            if (digit = 4) {
+                do Screen.drawLine(x, y, x, y + 5);  // левая верхняя линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+            }
+            if (digit = 5) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x, y, x, y + 5);  // левая верхняя линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x + 8, y + 5, x + 8, y + 10);  // правая нижняя линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            if (digit = 6) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x, y, x, y + 10);  // левая линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x + 8, y + 5, x + 8, y + 10);  // правая нижняя линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            if (digit = 7) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+            }
+            if (digit = 8) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x, y, x, y + 10);  // левая линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            if (digit = 9) {
+                do Screen.drawLine(x, y, x + 8, y);  // верхняя линия
+                do Screen.drawLine(x, y, x, y + 5);  // левая верхняя линия
+                do Screen.drawLine(x, y + 5, x + 8, y + 5);  // средняя линия
+                do Screen.drawLine(x + 8, y, x + 8, y + 10);  // правая линия
+                do Screen.drawLine(x, y + 10, x + 8, y + 10);  // нижняя линия
+            }
+            
+            let x = x + 12;  // переходим к следующей позиции
+            let scoreCopy = scoreCopy / 10;
+        }
+        return;
+    }
+
+    // Инициализация пришельцев
+    method void initializeAliens() {
+        var int i;
+        var int x;
+        var int y;
+        var int screenWidth;
+        var int screenHeight;
+        var int alienWidth;
+        var int alienHeight;
+        var int sectionWidth;  // ширина одной секции
+        var Alien alien;      // временная переменная для пришельца
+        
+        if (aliens = null) {
+            let aliens = Array.new(6);
+        }
+        
+        let screenWidth = 512;
+        let screenHeight = 256;
+        let alienWidth = 16;
+        let alienHeight = 16;
+        let sectionWidth = screenWidth / 6;  // делим экран на 6 равных частей
+        
+        let i = 0;
+        while (i < 6) {
+            // Вычисляем границы текущей секции
+            let x = (i * sectionWidth) + random.randRange(sectionWidth - alienWidth);  // Используем randRange с маленькой буквы
+            // Случайная высота от 20 до 100 пикселей от верха экрана
+            let y = random.randRange(80) + 20;  // Используем randRange с маленькой буквы
+            
+            // Создаем пришельца в случайной позиции в пределах его секции
+            let alien = Alien.new(x, y);
+            if (~(alien = null)) {  // проверяем, что пришелец создан
+                let aliens[i] = alien;
+            }
+            
+            let i = i + 1;
+        }
+        
+        // Устанавливаем начальное количество пришельцев
+        let aliensCount = 6;
+        return;
+    }
+}

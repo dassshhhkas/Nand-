@@ -1,0 +1,79 @@
+class Alien {
+
+    field int x;                // x-позиция пришельца
+    field int y;                // y-позиция пришельца
+    field boolean alive;        // флаг, жив ли пришелец
+
+    // Конструктор
+    constructor Alien new(int xPos, int yPos) {
+        let x = xPos;
+        let y = yPos;
+        let alive = true;
+        return this;
+    }
+
+    // Метод для проверки столкновения с ракетой
+    method boolean checkCollisionShip(Rocket rocket) {
+        var int rocketX, rocketY;
+        var int alienRight, alienBottom;
+        var int rocketRight, rocketBottom;
+
+        if (alive) {
+            let rocketX = rocket.getX();
+            let rocketY = rocket.getY();
+            let alienRight = x + 20;
+            let alienBottom = y + 20;
+            let rocketRight = rocketX + 32;
+            let rocketBottom = rocketY + 24;
+
+            // Проверка на столкновение с учетом реальных размеров ракеты
+            // Корпус: 32x16 пикселей
+            // Нос: 8x8 пикселей (по 4 пикселя влево и вправо от центра)
+            if ((x < rocketRight) & (alienRight > rocketX) & (y < rocketBottom) & (alienBottom > (rocketY - 8))) {
+                return true;  // столкновение произошло
+            }
+        }
+        return false;  // нет столкновения
+    }
+
+    // Метод для отрисовки пришельца
+    method void draw() {
+        if (alive) {
+            // Очищаем предыдущую позицию
+            do Screen.setColor(false);  // устанавливаем черный цвет
+            do Screen.drawRectangle(x, y, x + 20, y + 20);
+            
+            // Отрисовка пришельца
+            do Screen.setColor(true);  // устанавливаем белый цвет
+            do Screen.drawRectangle(x, y, x + 20, y + 20);  // пример отрисовки
+        }
+        return;
+    }
+
+    // Метод для проверки, жив ли пришелец
+    method boolean isAlive() {
+        return alive;
+    }
+
+    // Метод для уничтожения пришельца (если нужно)
+    method void dispose() {
+        do Memory.deAlloc(this);  // освобождаем память объекта
+        return;
+    }
+
+    // Метод для получения x-позиции
+    method int getX() {
+        return x;
+    }
+
+    // Метод для получения y-позиции
+    method int getY() {
+        return y;
+    }
+
+    // Метод для установки y-позиции
+    method void setY(int newY) {
+        let y = newY;
+        return;
+    }
+}
